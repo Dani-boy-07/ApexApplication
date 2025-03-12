@@ -1,5 +1,6 @@
 package com.adenikinju.apexapplication.ui.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,10 +21,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,6 +46,11 @@ import com.adenikinju.apexapplication.ui.viewmodel.CourseViewModel
 fun HomeScreen(
     courseViewModel: CourseViewModel
 ) {
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+    val spacing by rememberUpdatedState(if (isPortrait) 50.dp else 20.dp)
+
     val resourceItems by courseViewModel.resourceData.observeAsState(emptyList())
     val enrollmentItems by courseViewModel.enrollmentItem.observeAsState(emptyList())
     val quizItems by courseViewModel.quizItem.observeAsState(emptyList())
@@ -51,7 +59,7 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(15.dp),
-        verticalArrangement = Arrangement.spacedBy(50.dp)
+        verticalArrangement = Arrangement.spacedBy(spacing)
     ) {
         item {
             EnrollmentSection(enrollmentItems = enrollmentItems)
@@ -84,7 +92,7 @@ private fun EnrollmentSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(enrollmentItems.size) { it ->
+            items(enrollmentItems.size) {
                 val currentItem = enrollmentItems[it]
                 CardComponent(
                     header = currentItem.header,
@@ -102,6 +110,10 @@ private fun EnrollmentSection(
 
 @Composable
 private fun ResourceSection(sectionItems: List<Resource>) {
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+    val height by rememberUpdatedState(if (isPortrait) 220.dp else 120.dp)
     SectionComponent(
         headerSection = {
             Row(
@@ -133,7 +145,7 @@ private fun ResourceSection(sectionItems: List<Resource>) {
         },
         body = {
             LazyVerticalGrid(
-                modifier = Modifier.height(220.dp),
+                modifier = Modifier.height(height),
                 columns = GridCells.Adaptive(minSize = 80.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -201,7 +213,7 @@ private fun QuizSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(quizItem.size) { it ->
+            items(quizItem.size) {
                 val currentItem = quizItem[it]
 
                 QuizComponent(
